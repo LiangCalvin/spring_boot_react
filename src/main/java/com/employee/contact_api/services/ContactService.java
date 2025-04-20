@@ -26,7 +26,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Slf4j
 @Transactional(rollbackOn = Exception.class)
 @RequiredArgsConstructor
-public class ContactService {
+public class ContactService implements IContactService {
     private final ContactRepository contactRepository;
 
     public Page<Contact> getAllContactsPerPage(int page, int size){
@@ -72,7 +72,7 @@ public class ContactService {
             Files.copy(image.getInputStream(), fileStorageLocation.resolve(filename), REPLACE_EXISTING);
             return ServletUriComponentsBuilder
                     .fromCurrentContextPath()
-                    .path("/contacts/image/"+ id + fileExtension.apply(image.getOriginalFilename())).toString();
+                    .path("/api/getImage/" + id + fileExtension.apply(image.getOriginalFilename())).toUriString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

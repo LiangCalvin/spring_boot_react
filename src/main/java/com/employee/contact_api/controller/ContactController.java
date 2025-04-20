@@ -6,15 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+import static org.springframework.util.MimeTypeUtils.IMAGE_JPEG_VALUE;
+import static org.springframework.util.MimeTypeUtils.IMAGE_PNG_VALUE;
+
+@SuppressWarnings("unused")
 @RestController
 @RequestMapping("/api")
 public class ContactController {
 
-    private ContactService _contactService;
+    private final ContactService _contactService;
 
     @Autowired
     public ContactController(ContactService _contactService) {
@@ -44,18 +53,18 @@ public class ContactController {
         return ResponseEntity.ok().body(_contactService.getContact(id));
     }
 
+    @PutMapping("/uploadImage")
+    public ResponseEntity<String> uploadImage (@RequestParam("id") String id,
+                                               @RequestParam("file") MultipartFile imgUrl) {
+        return ResponseEntity.ok().body(_contactService.uploadPhoto(id, imgUrl));
+    }
 
+    @GetMapping(path = "/getImage/{filename}", produces = { IMAGE_PNG_VALUE, IMAGE_JPEG_VALUE })
+    public byte[] getImage(@PathVariable("filename") String filename) throws IOException {
+        Path filePath = Paths.get("").toAbsolutePath().resolve(filename);
+        return Files.readAllBytes(filePath);
+    }
 
-
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Contact> getContactById(@PathVariable(value = "id") String id) {
-//        return ResponseEntity.ok().body(contactService.getContact(id));
-//    }
-//
-//    @PutMapping("/photo")
-//    public ResponseEntity<String> uploadPhoto(@RequestParam("id") String id, @RequestParam("file")MultipartFile file) {
-//        return ResponseEntity.ok().body(contactService.uploadPhoto(id, file));
-//    }
 //
 //    @GetMapping(path = "/image/{filename}", produces = { IMAGE_PNG_VALUE, IMAGE_JPEG_VALUE })
 //    public byte[] getPhoto(@PathVariable("filename") String filename) throws IOException {
